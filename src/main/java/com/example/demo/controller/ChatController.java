@@ -47,7 +47,7 @@ public class ChatController {
         try {
             headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
             redisTemplate.opsForSet().add(onlineUsers,chatMessage.getSender());
-            redisTemplate.convertAndSend(userStatus,chatMessage);
+            redisTemplate.convertAndSend(userStatus,JsonUtil.parseObjToJson(chatMessage));
         }catch (Exception e)
         {
             log.info(e.getMessage()+e);

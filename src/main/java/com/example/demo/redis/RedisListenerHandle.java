@@ -52,8 +52,13 @@ public class RedisListenerHandle extends MessageListenerAdapter {
             log.info("Send to all users: "+rawMsg);
             ChatMessage chatMessage =JsonUtil.parseJsonToObj(rawMsg,ChatMessage.class);
             chatService.sendMsg(chatMessage);
-        }else {
-            log.warn("No further op with this topic!");
+        }else if(userStatus.equals(topic)){
+            log.info("change user status"+rawMsg);
+            ChatMessage chatMessage =JsonUtil.parseJsonToObj(rawMsg,ChatMessage.class);
+            chatService.sendMsg(chatMessage);
+        }
+        else {
+            log.warn("no furtehr op on this topic!");
         }
     }
 
