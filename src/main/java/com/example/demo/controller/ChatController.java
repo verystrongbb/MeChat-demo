@@ -1,4 +1,5 @@
 package com.example.demo.controller;
+import com.example.demo.common.JsonUtil;
 import com.example.demo.entity.ChatMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -31,7 +32,7 @@ public class ChatController {
     @MessageMapping("/chat.sendMessage")
     public void sendMessage(@Payload ChatMessage chatMessage) {
         try {
-            redisTemplate.convertAndSend(msgToAll,chatMessage);
+            redisTemplate.convertAndSend(msgToAll, JsonUtil.parseObjToJson(chatMessage));
         }catch (Exception e)
         {
             log.info(e.getMessage()+e);

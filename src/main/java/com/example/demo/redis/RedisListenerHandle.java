@@ -1,5 +1,9 @@
 package com.example.demo.redis;
 
+import com.example.demo.common.JsonUtil;
+import com.example.demo.entity.ChatMessage;
+import com.example.demo.service.ChatService;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,10 +13,10 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class RedisListenerHandle extends MessageListenerAdapter {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RedisListenerHandle.class);
 
     @Value("${redis.channel.msgToAll}")
     private String msgToAll;
@@ -25,6 +29,33 @@ public class RedisListenerHandle extends MessageListenerAdapter {
 
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
+
+    @Autowired
+    private ChatService chatService;
+
+    public void onMessage(Message message,byte[] bytes)
+    {
+        byte[]body=message.getBody();
+        byte[]channel=message.getChannel();
+        String rawMsg;
+        String topic;
+        try {
+            rawMsg = redisTemplate.getStringSerializer().deserialize(body);
+            topic = redisTemplate.getStringSerializer().deserialize(channel);
+            log.info("Recv rawMsg from topic: " + topic + " content: " + rawMsg);
+        }catch (Exception e)
+        {
+            log.info(e.getMessage()+e);
+            return;
+        }
+        if (msgToAll.equals(topic)){
+            log.info("Send to all users: "+rawMsg);
+            ChatMessage chatMessage =JsonUtil.parseJsonToObj(rawMsg,ChatMessage.class);
+            chatService.sendMsg(chatMessage);
+        }else {
+            log.warn("No further op with this topic!");
+        }
+    }
 
 
 
