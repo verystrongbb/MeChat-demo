@@ -15,7 +15,7 @@ public class ChatService {
     private SimpMessageSendingOperations simpMessageSendingOperations;
 
     public void sendMsg(@Payload ChatMessage chatMessage){
-        log.info("Send msg by simpMSO:"+chatMessage.toString());
-        simpMessageSendingOperations.convertAndSend("/topic/public",chatMessage);
+        log.info("\nSend msg by simpMSO:\n"+chatMessage.toString());
+        simpMessageSendingOperations.convertAndSend("/topic/"+chatMessage.getTopic(),chatMessage);
     }
 }
