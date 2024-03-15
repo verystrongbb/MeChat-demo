@@ -58,7 +58,7 @@ function sendMessage(event) {
     var messageContent = messageInput.value.trim();
     var topicContent = topicInput.value.trim();
     totopic=topicContent;
-    stompClient.subscribe('/topic/'+totopic, onMessageReceived);
+    // stompClient.subscribe('/topic/'+totopic, onMessageReceived);
     if(messageContent && stompClient&&topicContent) {
         var chatMessage = {
             sender: username,

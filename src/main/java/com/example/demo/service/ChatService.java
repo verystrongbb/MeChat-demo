@@ -16,6 +16,14 @@ public class ChatService {
 
     public void sendMsg(@Payload ChatMessage chatMessage){
         log.info("\nSend msg by simpMSO:\n"+chatMessage.toString());
-        simpMessageSendingOperations.convertAndSend("/topic/"+chatMessage.getTopic(),chatMessage);
-    }
+        //发给自己看
+        if(chatMessage.getTopic()!=null)
+        {
+            if(!chatMessage.getTopic().equals(chatMessage.getSender())&&!chatMessage.getTopic().equals("public"))
+            simpMessageSendingOperations.convertAndSend("/topic/"+chatMessage.getSender(),chatMessage);
+            simpMessageSendingOperations.convertAndSend("/topic/"+chatMessage.getTopic(),chatMessage);
+        }
+        else  simpMessageSendingOperations.convertAndSend("/topic/public",chatMessage);
+
+        }
 }
