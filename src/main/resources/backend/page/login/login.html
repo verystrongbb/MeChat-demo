@@ -105,7 +105,7 @@
               if (String(res.code) === '1'){//1表示登录成功
                 console.log("登陆成功")
                 localStorage.setItem('userInfo',JSON.stringify(res.data))
-                window.location.href= '/backend/index.html'
+                window.location.href= '../../../chat.html'
               } else {
                 console.log("登陆失败")
                 this.$message.error(res.msg)

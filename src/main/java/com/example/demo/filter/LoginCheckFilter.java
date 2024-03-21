@@ -41,8 +41,12 @@ public class LoginCheckFilter implements Filter{
             filterChain.doFilter(request,response);
             return;
         }
+
+          response.getWriter().println( JSON.parseObject(JSON.toJSONString(R.error("NOT LOGIN"))));
+
+//        filterChain.doFilter(request,response);
+        //response.setHeader("location","/backend/page/login/login.html");
         log.info("用户未登录");
-        response.getWriter().write(JSON.toJSONString(R.error("NOTLOGIN")));
         return;
 
     }

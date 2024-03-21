@@ -1,8 +1,8 @@
 'use strict';
 
-var usernamePage = document.querySelector('#username-page');
+//var usernamePage = document.querySelector('#username-page');
 var chatPage = document.querySelector('#chat-page');
-var usernameForm = document.querySelector('#usernameForm');
+//var usernameForm = document.querySelector('#usernameForm');
 var messageForm = document.querySelector('#messageForm');
 var messageInput = document.querySelector('#message');
 var topicInput = document.querySelector('#topic');
@@ -10,18 +10,32 @@ var messageArea = document.querySelector('#messageArea');
 var connectingElement = document.querySelector('.connecting');
 
 var stompClient = null;
-var username = null;
+var myusername = null;
 var totopic=null;
+var userInfo=null;
 var colors = [
     '#2196F3', '#32c787', '#00BCD4', '#ff5652',
     '#ffc107', '#ff85af', '#FF9800', '#39bbb0'
 ];
+window.onload = function() {
+    connect()
+    // 在页面加载完成后执行的代码
+};
+//function connect(event)
+function connect() {
+    //username = document.querySelector('#name').value.trim();
 
-function connect(event) {
-    username = document.querySelector('#name').value.trim();
+    const userInfo = window.localStorage.getItem('userInfo')
 
-    if(username) {
-        usernamePage.classList.add('hidden');
+    if (userInfo) {
+        var un=JSON.parse(userInfo)
+
+    }
+    myusername=un.username
+
+
+    if(myusername) {
+        //usernamePage.classList.add('hidden');
         chatPage.classList.remove('hidden');
 
         var socket = new SockJS('/ws');
@@ -29,19 +43,19 @@ function connect(event) {
 
         stompClient.connect({}, onConnected, onError);
     }
-    event.preventDefault();
+    //event.preventDefault();
 }
 
 
 function onConnected() {
     // Subscribe to the Public Topic
     stompClient.subscribe('/topic/public', onMessageReceived);
-    stompClient.subscribe('/topic/'+username, onMessageReceived);
+    stompClient.subscribe('/topic/'+myusername, onMessageReceived);
 
     // Tell your username to the server
     stompClient.send("/app/chat.addUser",
         {},
-        JSON.stringify({sender: username, type: 'JOIN'})
+        JSON.stringify({sender: myusername, type: 'JOIN'})
     )
 
     connectingElement.classList.add('hidden');
@@ -61,7 +75,7 @@ function sendMessage(event) {
     // stompClient.subscribe('/topic/'+totopic, onMessageReceived);
     if(messageContent && stompClient&&topicContent) {
         var chatMessage = {
-            sender: username,
+            sender: myusername,
             content: messageInput.value,
             topic: topicInput.value,
             type: 'CHAT'
@@ -120,5 +134,5 @@ function getAvatarColor(messageSender) {
     return colors[index];
 }
 
-usernameForm.addEventListener('submit', connect, true)
+//usernameForm.addEventListener('submit', connect, true)
 messageForm.addEventListener('submit', sendMessage, true)
