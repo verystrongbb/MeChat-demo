@@ -41,8 +41,6 @@
                     <input type="text" id="message" placeholder="Type a message..." autocomplete="off" class="form-control"/>
                     <input type="text" id="topic" placeholder="Type receiver's username..." autocomplete="off" class="form-control"/>
                     <button type="submit" class="primary">Send</button>
-
-
                 </div>
             </div>
         </form>
@@ -61,38 +59,7 @@
 <script src="/backend/js/validate.js"></script>
 <script src="/backend/api/login.js"></script>
 
-<script>
 
-    new Vue({
-        el: '#chat-page',
-        data() {
-
-        },
-        computed: {},
-        created() {
-            this.init()
-
-        },
-        mounted() {
-        },
-        methods: {
-            async init () {
-
-                await axios.get('localhost:8081/chat.html').then(res => {
-                    if (String(res.code) === '1') {
-                        console.log(res.data)
-                    }
-                }).catch(err => {
-                    this.$message.error('请求出错了：' + err)
-                })
-            }
-
-
-
-
-        }
-    })
-</script>
 
 </body>
 </html>

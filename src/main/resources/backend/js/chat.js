@@ -1,8 +1,8 @@
 'use strict';
 
-//var usernamePage = document.querySelector('#username-page');
+var usernamePage = document.querySelector('#username-page');
 var chatPage = document.querySelector('#chat-page');
-//var usernameForm = document.querySelector('#usernameForm');
+var usernameForm = document.querySelector('#usernameForm');
 var messageForm = document.querySelector('#messageForm');
 var messageInput = document.querySelector('#message');
 var topicInput = document.querySelector('#topic');
@@ -109,7 +109,7 @@ function onMessageReceived(payload) {
         messageElement.appendChild(avatarElement);
 
         var usernameElement = document.createElement('span');
-        var usernameText = document.createTextNode(message.sender);
+        var usernameText = document.createTextNode(message.sender+" (to "+message.topic+")");
         usernameElement.appendChild(usernameText);
         messageElement.appendChild(usernameElement);
     }
