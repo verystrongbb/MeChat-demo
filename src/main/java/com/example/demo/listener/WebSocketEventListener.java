@@ -1,6 +1,5 @@
 package com.example.demo.listener;
 
-import com.example.demo.common.JsonUtil;
 import com.example.demo.entity.ChatMessage;
 import com.example.demo.service.ChatService;
 import org.slf4j.Logger;
@@ -23,7 +22,7 @@ public class WebSocketEventListener {
     private SimpMessageSendingOperations messagingTemplate;
     @Autowired
     private RedisTemplate redisTemplate;
-    @Value("${redis.channel.msgToAll}")
+    @Value("${spring.redis.channel.msgToAll}")
     private String msgToAll;
     @Autowired
     private ChatService chatService;

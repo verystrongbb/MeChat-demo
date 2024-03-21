@@ -18,10 +18,10 @@ public class RedisListenerBean {
     @Value("${server.port}")
     private String serverPort;
 
-    @Value("${redis.channel.msgToAll}")
+    @Value("${spring.redis.channel.msgToAll}")
     private String msgToAll;
 
-    @Value("${redis.channel.userStatus}")
+    @Value("${spring.redis.channel.userStatus}")
     private String userStatus;
 
     /**

@@ -4,8 +4,6 @@ import com.example.demo.common.JsonUtil;
 import com.example.demo.entity.ChatMessage;
 import com.example.demo.service.ChatService;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.connection.Message;
@@ -18,10 +16,10 @@ import org.springframework.stereotype.Component;
 public class RedisListenerHandle extends MessageListenerAdapter {
 
 
-    @Value("${redis.channel.msgToAll}")
+    @Value("${spring.redis.channel.msgToAll}")
     private String msgToAll;
 
-    @Value("${redis.channel.userStatus}")
+    @Value("${spring.redis.channel.userStatus}")
     private String userStatus;
 
     @Value("${server.port}")
