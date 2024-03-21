@@ -7,14 +7,17 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.AntPathMatcher;
 
 import java.io.IOException;
 @Slf4j
 @WebFilter(filterName = "loginCheckFilter",urlPatterns = "/*")
+
 public class LoginCheckFilter implements Filter{
     public static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
     @Override
+
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest request =(HttpServletRequest) servletRequest;
         HttpServletResponse response =(HttpServletResponse) servletResponse;

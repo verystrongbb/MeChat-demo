@@ -13,6 +13,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -64,7 +65,9 @@ public class ChatController {
         }
 
     }
+
     @PostMapping("/login")
+    @Transactional
     public R<MyUser> login(HttpServletRequest request, @RequestBody MyUser myUser){
 
         //1、将页面提交的密码password进行md5加密处理
