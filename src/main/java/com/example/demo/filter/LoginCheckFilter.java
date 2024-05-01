@@ -27,7 +27,8 @@ public class LoginCheckFilter implements Filter{
         String[]urls=new String[]{
 
                 "/backend/**",
-                "/login"
+                "/login",
+
 
 
         };
@@ -38,6 +39,7 @@ public class LoginCheckFilter implements Filter{
             filterChain.doFilter(request,response);
             return;
         }
+
         if (request.getSession().getAttribute("username") != null) {
             log.info("用户已登录，用户名为：{}",request.getSession().getAttribute("username"));
 

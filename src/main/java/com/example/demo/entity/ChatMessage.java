@@ -6,9 +6,11 @@ import lombok.Data;
 public class ChatMessage {
     private MessageType type;
     private String content;
+    private int num;
     private String sender;
     //TODO:设定接收者实现私聊群聊转换？
     private String topic;
+    private String id="0";
 
     public String getTopic() {
         return topic;
@@ -21,7 +23,9 @@ public class ChatMessage {
     public enum MessageType {
         CHAT,
         JOIN,
-        LEAVE
+        LEAVE,
+        MONEY,
+        ROB
     }
 
     public String toString()

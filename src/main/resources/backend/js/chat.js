@@ -5,6 +5,7 @@ var chatPage = document.querySelector('#chat-page');
 var usernameForm = document.querySelector('#usernameForm');
 var messageForm = document.querySelector('#messageForm');
 var messageInput = document.querySelector('#message');
+var moneyNumInput = document.querySelector('#moneyNum');
 var topicInput = document.querySelector('#topic');
 var messageArea = document.querySelector('#messageArea');
 var connectingElement = document.querySelector('.connecting');
@@ -66,7 +67,26 @@ function onError(error) {
     connectingElement.textContent = 'Could not connect to WebSocket server. Please refresh this page to try again!';
     connectingElement.style.color = 'red';
 }
+function sendMoney(event) {
+    //强制moneyNumInput输入为整数
+    var moneyNum = moneyNumInput.value.trim();
+    var topicContent = topicInput.value.trim();
+    totopic=topicContent;
+    // stompClient.subscribe('/topic/'+totopic, onMessageReceived);
+    if(moneyNum && stompClient&&topicContent) {
+        var chatMessage = {
+            sender: myusername,
+            content: moneyNumInput.value,
 
+            topic: topicInput.value,
+            type: 'MONEY',
+        };
+        stompClient.send("/app/chat.sendMoney", {}, JSON.stringify(chatMessage));
+        moneyNumInput.value = '';topicInput.value = '';
+    }
+    event.preventDefault();
+
+}
 
 function sendMessage(event) {
     var messageContent = messageInput.value.trim();
@@ -76,11 +96,13 @@ function sendMessage(event) {
     if(messageContent && stompClient&&topicContent) {
         var chatMessage = {
             sender: myusername,
-            content: messageInput.value,
+            content: " ",
             topic: topicInput.value,
-            type: 'CHAT'
+            num: moneyNumInput.value,
+            type: 'CHAT',
+            id: "0"
         };
-        stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
+        stompClient.send("/app/chat.robMoney", {}, JSON.stringify(chatMessage));
         messageInput.value = '';topicInput.value = '';
     }
     event.preventDefault();
@@ -98,7 +120,31 @@ function onMessageReceived(payload) {
     } else if (message.type === 'LEAVE') {
         messageElement.classList.add('event-message');
         message.content = message.sender + ' left!';
-    } else {
+    }else if (message.type === 'MONEY') {
+        //页面上发送一个按钮，点击后调用robMoney
+        var button = document.createElement('button');
+        button.innerHTML = "抢红包";
+        button.onclick = function() {
+            function robMoney(message) {
+                var chatMessage = {
+                    sender: myusername,
+                    content: message.content,
+                    num: message.num,
+                    topic: message.topic,
+                    type: 'ROB',
+                    id: message.id
+                };
+                stompClient.send("/app/chat.robMoney", {}, JSON.stringify(chatMessage));
+
+            }
+
+            robMoney(message);
+        };
+        messageElement.appendChild(button);
+
+
+    }
+    else {
         messageElement.classList.add('chat-message');
 
         var avatarElement = document.createElement('i');
@@ -136,3 +182,7 @@ function getAvatarColor(messageSender) {
 
 //usernameForm.addEventListener('submit', connect, true)
 messageForm.addEventListener('submit', sendMessage, true)
+
+
+
+messageForm.addEventListener('LuckyMoney', sendMoney, true)
