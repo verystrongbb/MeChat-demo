@@ -2,10 +2,11 @@
 
 var usernamePage = document.querySelector('#username-page');
 var chatPage = document.querySelector('#chat-page');
+var LUCKY_MONEY_BTN = document.getElementById("LuckyMoneyBtn");
 var usernameForm = document.querySelector('#usernameForm');
 var messageForm = document.querySelector('#messageForm');
 var messageInput = document.querySelector('#message');
-var moneyNumInput = document.querySelector('#moneyNum');
+var moneyNumInput = document.querySelector('#MoneyNum');
 var topicInput = document.querySelector('#topic');
 var messageArea = document.querySelector('#messageArea');
 var connectingElement = document.querySelector('.connecting');
@@ -69,17 +70,18 @@ function onError(error) {
 }
 function sendMoney(event) {
     //强制moneyNumInput输入为整数
-    var moneyNum = moneyNumInput.value.trim();
-    var topicContent = topicInput.value.trim();
+    var moneyNum = moneyNumInput.value;
+    var topicContent = topicInput.value;
     totopic=topicContent;
     // stompClient.subscribe('/topic/'+totopic, onMessageReceived);
     if(moneyNum && stompClient&&topicContent) {
         var chatMessage = {
             sender: myusername,
-            content: moneyNumInput.value,
-
-            topic: topicInput.value,
+            content: "LuckyMoney",
+            topic: totopic,
             type: 'MONEY',
+            num: moneyNum,
+            id: 0
         };
         stompClient.send("/app/chat.sendMoney", {}, JSON.stringify(chatMessage));
         moneyNumInput.value = '';topicInput.value = '';
@@ -96,13 +98,13 @@ function sendMessage(event) {
     if(messageContent && stompClient&&topicContent) {
         var chatMessage = {
             sender: myusername,
-            content: " ",
+            content: messageContent,
             topic: topicInput.value,
-            num: moneyNumInput.value,
+            num: 0,
             type: 'CHAT',
-            id: "0"
+            id: 0
         };
-        stompClient.send("/app/chat.robMoney", {}, JSON.stringify(chatMessage));
+        stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
         messageInput.value = '';topicInput.value = '';
     }
     event.preventDefault();
@@ -120,29 +122,42 @@ function onMessageReceived(payload) {
     } else if (message.type === 'LEAVE') {
         messageElement.classList.add('event-message');
         message.content = message.sender + ' left!';
-    }else if (message.type === 'MONEY') {
-        //页面上发送一个按钮，点击后调用robMoney
+    }
+    else if (message.type === 'MONEY') {
+        messageElement.classList.add('chat-message');
+
+        var avatarElement = document.createElement('i');
+        var avatarText = document.createTextNode(message.sender[0]);
+        avatarElement.appendChild(avatarText);
+        avatarElement.style['background-color'] = getAvatarColor(message.sender);
+
+        messageElement.appendChild(avatarElement);
+
+        var usernameElement = document.createElement('span');
+        var usernameText = document.createTextNode(message.sender+" (to "+message.topic+")\n");
+        usernameElement.appendChild(usernameText);
+        messageElement.appendChild(usernameElement);
+
+        //页面上发送一个按钮，点击后调用robMoney并刷新按钮文本
+
         var button = document.createElement('button');
-        button.innerHTML = "抢红包";
+        button.innerHTML = "[Lucky Money: "+message.num+"]";
         button.onclick = function() {
             function robMoney(message) {
                 var chatMessage = {
                     sender: myusername,
-                    content: message.content,
+                    content: "robMoney",
                     num: message.num,
-                    topic: message.topic,
+                    topic: myusername,
                     type: 'ROB',
                     id: message.id
                 };
                 stompClient.send("/app/chat.robMoney", {}, JSON.stringify(chatMessage));
 
             }
-
             robMoney(message);
         };
         messageElement.appendChild(button);
-
-
     }
     else {
         messageElement.classList.add('chat-message');
@@ -183,6 +198,4 @@ function getAvatarColor(messageSender) {
 //usernameForm.addEventListener('submit', connect, true)
 messageForm.addEventListener('submit', sendMessage, true)
 
-
-
-messageForm.addEventListener('LuckyMoney', sendMoney, true)
+LUCKY_MONEY_BTN.addEventListener("click",sendMoney)

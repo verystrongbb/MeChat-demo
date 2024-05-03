@@ -25,12 +25,8 @@ public class LoginCheckFilter implements Filter{
         String requestURI=request.getRequestURI();
 
         String[]urls=new String[]{
-
                 "/backend/**",
                 "/login",
-
-
-
         };
 
         boolean check=check(urls,requestURI);
@@ -47,11 +43,15 @@ public class LoginCheckFilter implements Filter{
             return;
         }
 
-          response.getWriter().println( JSON.parseObject(JSON.toJSONString(R.error("NOT LOGIN"))));
-
 //        filterChain.doFilter(request,response);
         //response.setHeader("location","/backend/page/login/login.html");
         log.info("用户未登录");
+        //跳转回登陆页面
+        // 设置响应状态码为302，表示临时重定向
+        response.setStatus(HttpServletResponse.SC_FOUND);
+        // 设置重定向的位置，这里假设你的登录页面的URL是 "/login.html"
+        response.setHeader("Location", "/backend/page/login/login.html");
+
         return;
 
     }

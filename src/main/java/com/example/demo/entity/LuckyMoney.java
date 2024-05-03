@@ -7,5 +7,5 @@ import java.io.Serializable;
 @Data
 public class LuckyMoney implements Serializable {
     private int num;
-    private String id="0";
+    private long id=0;
 }

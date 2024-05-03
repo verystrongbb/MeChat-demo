@@ -1,12 +1,14 @@
 package com.example.demo.controller;
 import com.example.demo.common.JsonUtil;
 import com.example.demo.common.R;
+import com.example.demo.common.SnowFlakeUtil;
 import com.example.demo.entity.ChatMessage;
 import com.example.demo.entity.LuckyMoney;
 import com.example.demo.entity.MyUser;
 import com.example.demo.entity.UserMoney;
 import com.example.demo.mapper.LuckyMoneyMapper;
 import com.example.demo.mapper.UserMoneyMapper;
+import com.example.demo.service.LMService;
 import com.example.demo.service.LuckyMoneyService;
 import com.example.demo.service.MyUserService;
 import com.example.demo.service.UserMoneyService;
@@ -49,6 +51,8 @@ public class ChatController {
     @Autowired
     private LuckyMoneyService luckyMoneyService;
     @Autowired
+    private LMService lmService;
+    @Autowired
     private RedissonClient redissonClient;
 
     @Value("${spring.redis.channel.msgToAll}")
@@ -61,34 +65,10 @@ public class ChatController {
 
     @MessageMapping("/chat.sendMoney")
     public void sendMoney(@Payload ChatMessage chatMessage) {
-        RLock lock = redissonClient.getLock("lock");
-        boolean isLock = false;
-        try {
-            isLock = lock.tryLock(1, 10, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        if (isLock){
-            try {
-                System.out.println("执行业务");
-                String id=chatMessage.getSender()+chatMessage.getTopic()+chatMessage.getContent();
-                if(luckyMoneyMapper.selectById(id)!=null)
-                {
-                    log.info("已经发过了");
-                    return;
-                }
-                LuckyMoney luckyMoney=new LuckyMoney();
-                luckyMoney.setId(id);
-                luckyMoney.setNum(chatMessage.getNum());
-                int count = luckyMoneyMapper.insert(luckyMoney);
-                if(count==0)
-                {
-                    log.info("insert failed");
-                }
-            } finally {
-                lock.unlock();
-            }
-        }
+        SnowFlakeUtil snowFlakeUtil=new SnowFlakeUtil(1,1);
+        chatMessage.setId(snowFlakeUtil.getNextId());
+        lmService.addLuckyMoney(chatMessage.getId(),chatMessage.getNum());
+        ;
         //集群
         try {
             redisTemplate.convertAndSend(msgToAll, JsonUtil.parseObjToJson(chatMessage));
@@ -100,48 +80,10 @@ public class ChatController {
     @MessageMapping("/chat.robMoney")
     public void robMoney(@Payload ChatMessage chatMessage) {
         //TODO:一人一单 基于redission的分布式锁
-        RLock lock = redissonClient.getLock("lock");
-        boolean isLock = false;
-        try {
-            isLock = lock.tryLock(1, 10, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        if (isLock) {
-            try {
-                System.out.println("执行业务");
-                //TODO:抢红包逻辑
-                String id=chatMessage.getId();
-                LuckyMoney luckyMoney=luckyMoneyService.getById(id);
-                luckyMoney.setId(id);
-                //乐观锁
-                if(luckyMoney.getNum()<=0)
-                {
-                    log.info("红包已经被抢完了");
-                    return;
-                }
-                luckyMoney.setNum(chatMessage.getNum()-1);
-                luckyMoneyService.updateById(luckyMoney);
-                UserMoney userMoney=new UserMoney();
-                if(userMoneyService.getById(id)!=null)
-                {
-                    log.info("已经抢过了");
-                    return;
-                }
-                userMoney.setUsername(chatMessage.getSender());
-                userMoney.setMoneyId(id);
-                userMoneyMapper.insert(userMoney);
-            } finally {
-                //释放锁
-                lock.unlock();
-            }
-        }
-        try {
-            redisTemplate.convertAndSend(msgToAll, JsonUtil.parseObjToJson(chatMessage));
-        }catch (Exception e)
-        {
-            log.info(e.getMessage()+e);
-        }
+
+        lmService.robLuckyMoney(chatMessage);
+
+
 
     }
     @MessageMapping("/chat.sendMessage")
